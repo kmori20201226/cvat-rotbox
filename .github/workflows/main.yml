@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - 'master'
-      - 'develop'
+      - 'rotbox'
   pull_request:
     types: [edited, ready_for_review, opened, synchronize, reopened]
 
