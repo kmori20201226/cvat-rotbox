@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import math
 from io import BufferedWriter
 import os
 import os.path as osp
@@ -19,6 +20,25 @@ from cvat.apps.engine.frame_provider import FrameProvider
 
 from .registry import exporter, importer
 
+def distance(p1, p2):
+    x = (p2[0] - p1[0]) ** 2
+    y = (p2[1] - p1[1]) ** 2
+    return math.sqrt(x + y)
+
+def getYawAngle(p1, p2):
+    return math.atan2(p2[1] - p1[1], p2[0] - p1[0]) * 180 / math.pi
+
+def midPoint(p1, p2):
+    return [(p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2]
+
+def polyRotboxElement(shape):
+    height = distance(shape.points[0:2], shape.points[2:4])
+    width = distance(shape.points[2:4], shape.points[4:6])
+    angle = getYawAngle(shape.points[2:4], shape.points[4:6])
+    p1 = midPoint(shape.points[0:2], shape.points[2:4])
+    p2 = midPoint(shape.points[4:6], shape.points[6:8])
+    center = midPoint(p1, p2)
+    return center[0], center[1], width, height, angle
 
 def pairwise(iterable):
     a = iter(iterable)
@@ -117,6 +137,11 @@ def create_xml_dumper(file_object):
             self.xmlgen.startElement("cuboid", cuboid)
             self._level += 1
 
+        def open_rotbox(self, rotbox):
+            self._indent()
+            self.xmlgen.startElement("rotbox", rotbox)
+            self._level += 1
+
         def open_tag(self, tag):
             self._indent()
             self.xmlgen.startElement("tag", tag)
@@ -152,6 +177,11 @@ def create_xml_dumper(file_object):
             self._level -= 1
             self._indent()
             self.xmlgen.endElement("cuboid")
+
+        def close_rotbox(self):
+            self._level -= 1
+            self._indent()
+            self.xmlgen.endElement("rotbox")
 
         def close_tag(self):
             self._level -= 1
@@ -259,6 +289,17 @@ def dump_as_cvat_annotation(dumper, annotations):
                 dumper.open_points(dump_data)
             elif shape.type == "cuboid":
                 dumper.open_cuboid(dump_data)
+            elif shape.type == "rotbox":
+                dumper.open_polygon(dump_data)
+                points = polyRotboxElement(shape)
+                dumper.open_rotbox(OrderedDict([
+                    ("cx", "{:.2f}".format(points[0])),
+                    ("cy", "{:.2f}".format(points[1])),
+                    ("width", "{:.2f}".format(points[2])),
+                    ("height", "{:.2f}".format(points[3])),
+                    ("angle", "{:.2f}".format(points[4])),
+                ]))
+                dumper.close_rotbox()
             else:
                 raise NotImplementedError("unknown shape type")
 
@@ -278,6 +319,8 @@ def dump_as_cvat_annotation(dumper, annotations):
                 dumper.close_points()
             elif shape.type == "cuboid":
                 dumper.close_cuboid()
+            elif shape.type == "rotbox":
+                dumper.close_polygon()
             else:
                 raise NotImplementedError("unknown shape type")
 
@@ -375,6 +418,8 @@ def dump_as_cvat_interpolation(dumper, annotations):
                 dumper.open_points(dump_data)
             elif shape.type == "cuboid":
                 dumper.open_cuboid(dump_data)
+            elif shape.type == "rotbox":
+                dumper.open_polygon(dump_data)
             else:
                 raise NotImplementedError("unknown shape type")
 
@@ -394,6 +439,8 @@ def dump_as_cvat_interpolation(dumper, annotations):
                 dumper.close_points()
             elif shape.type == "cuboid":
                 dumper.close_cuboid()
+            elif shape.type == "rotbox":
+                dumper.close_polygon()
             else:
                 raise NotImplementedError("unknown shape type")
         dumper.close_track()

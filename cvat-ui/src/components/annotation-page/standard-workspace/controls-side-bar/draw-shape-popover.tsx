@@ -76,6 +76,15 @@ function DrawShapePopoverComponent(props: Props): JSX.Element {
                     />
                 </Col>
             </Row>
+            {is2D && shapeType === ShapeType.ROTBOX && (
+                <>
+                    <Row>
+                        <Col>
+                            <Text className='cvat-text-color'> Drawing method </Text>
+                        </Col>
+                    </Row>
+                </>
+            )}
             {is2D && shapeType === ShapeType.RECTANGLE && (
                 <>
                     <Row>
@@ -126,7 +135,10 @@ function DrawShapePopoverComponent(props: Props): JSX.Element {
                     </Row>
                 </>
             )}
-            {is2D && shapeType !== ShapeType.RECTANGLE && shapeType !== ShapeType.CUBOID && (
+            {is2D &&
+                shapeType !== ShapeType.RECTANGLE &&
+                shapeType !== ShapeType.ROTBOX &&
+                shapeType !== ShapeType.CUBOID && (
                 <Row justify='space-around' align='middle'>
                     <Col span={14}>
                         <Text className='cvat-text-color'> Number of points: </Text>

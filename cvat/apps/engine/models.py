@@ -399,6 +399,7 @@ class ShapeType(str, Enum):
     POLYLINE = 'polyline'   # (x0, y0, ..., xn, yn)
     POINTS = 'points'       # (x0, y0, ..., xn, yn)
     CUBOID = 'cuboid'       # (x0, y0, ..., x7, y7)
+    ROTBOX = "rotbox"       # (x0, y0, ..., x7, y7)
 
     @classmethod
     def choices(cls):

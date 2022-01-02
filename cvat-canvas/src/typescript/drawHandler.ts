@@ -10,6 +10,7 @@ import { AutoborderHandler } from './autoborderHandler';
 import {
     translateToSVG,
     displayShapeSize,
+    parsePoints,
     ShapeSizeElement,
     stringifyPoints,
     pointsToNumberArray,
@@ -17,6 +18,9 @@ import {
     Box,
     Point,
 } from './shared';
+
+import { distance, rotboxPolyFrom2Points } from './rotbox';
+
 import Crosshair from './crosshair';
 import consts from './consts';
 import {
@@ -553,6 +557,55 @@ export class DrawHandlerImpl implements DrawHandler {
         }
     }
 
+    private drawRotbox(): void {
+        this.drawInstance = (this.canvas as any)
+            .polyline()
+            .addClass('cvat_canvas_shape_drawing')
+            .attr({
+                'stroke-width': consts.BASE_STROKE_WIDTH / this.geometry.scale,
+                'fill-opacity': 0,
+            });
+        this.canvas.on('mouseup.draw', (e: Event): void => {
+            if (this.drawInstance) {
+                this.drawInstance.draw('stop', e);
+            }
+        });
+        this.drawInstance
+            .on('drawstop', (/* e: Event */): void => {
+                const { offset } = this.geometry;
+                const targetPoints = this.drawInstance
+                    .attr('points')
+                    .split(/[,\s]/g)
+                    .map((coord: string): number => +coord - offset);
+                const { shapeType, redraw: clientID } = this.drawData;
+                this.release();
+                this.canvas.off('mouseup.draw');
+                if (this.canceled) return;
+
+                const p1: Point = { x: targetPoints[0], y: targetPoints[1] };
+                const p2: Point = { x: targetPoints[2], y: targetPoints[3] };
+
+                if (distance(p2, p1) > 10.0) {
+                    const height = this.configuration.initialRotboxHeight || 100;
+                    const points = rotboxPolyFrom2Points(p2, p1, height);
+                    this.onDrawDone(
+                        {
+                            clientID,
+                            shapeType,
+                            points,
+                        },
+                        Date.now() - this.startTimestamp,
+                    );
+                }
+            })
+            .on('drawupdate', (): void => this.transform(this.geometry))
+            .addClass('cvat_canvas_shape_drawing')
+            .attr({
+                'stroke-width': consts.BASE_STROKE_WIDTH / this.geometry.scale,
+                'fill-opacity': this.configuration.creationOpacity,
+            });
+    }
+
     private drawPoints(): void {
         this.drawInstance = (this.canvas as any).polygon().addClass('cvat_canvas_shape_drawing').attr({
             'stroke-width': 0,
@@ -708,6 +761,51 @@ export class DrawHandlerImpl implements DrawHandler {
         this.pastePolyshape();
     }
 
+    private pasteRotbox(points: string): void {
+        this.drawInstance = (this.canvas as any)
+            .polygon(points)
+            .addClass('cvat_canvas_shape_drawing')
+            .attr({
+                'stroke-width': consts.BASE_STROKE_WIDTH / this.geometry.scale,
+                'fill-opacity': this.configuration.creationOpacity,
+            });
+        this.pasteShape();
+        this.drawInstance.on('done', (e: CustomEvent): void => {
+            const { offset } = this.geometry;
+            const pointStr = this.drawInstance.attr('points');
+            const targetPoints: Point[] = parsePoints(pointStr);
+            const center: Point = {
+                x: this.drawInstance.cx(),
+                y: this.drawInstance.cy(),
+            };
+            // const tip = midPoint(targetPoints[0], targetPoints[1]);
+            const cur = this.cursorPosition;
+            const flatten = targetPoints.reduce((acc: number[], elem: Point): number[] => {
+                acc.push(elem.x + (center.x - cur.x) - offset);
+                acc.push(elem.y + (center.y - cur.y) - offset);
+                return acc;
+            }, []);
+
+            if (!e.detail.originalEvent.ctrlKey) {
+                this.release();
+            }
+
+            this.onDrawDone(
+                {
+                    shapeType: this.drawData.initialState.shapeType,
+                    objectType: this.drawData.initialState.objectType,
+                    points: flatten,
+                    occluded: this.drawData.initialState.occluded,
+                    attributes: { ...this.drawData.initialState.attributes },
+                    label: this.drawData.initialState.label,
+                    color: this.drawData.initialState.color,
+                },
+                Date.now() - this.startTimestamp,
+                e.detail.originalEvent.ctrlKey,
+            );
+        });
+    }
+
     private pasteCuboid(points: string): void {
         this.drawInstance = (this.canvas as any)
             .cube(points)
@@ -832,6 +930,8 @@ export class DrawHandlerImpl implements DrawHandler {
                 this.drawPolyline();
             } else if (this.drawData.shapeType === 'points') {
                 this.drawPoints();
+            } else if (this.drawData.shapeType === 'rotbox') {
+                this.drawRotbox();
             } else if (this.drawData.shapeType === 'cuboid') {
                 if (this.drawData.cuboidDrawingMethod === CuboidDrawingMethod.CORNER_POINTS) {
                     this.drawCuboidBy4Points();

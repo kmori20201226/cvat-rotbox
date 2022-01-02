@@ -108,6 +108,7 @@ function FiltersModalComponent(): JSX.Element {
                         { value: 'points', title: 'Points' },
                         { value: 'polyline', title: 'Polyline' },
                         { value: 'polygon', title: 'Polygon' },
+                        { value: 'rotbox', title: 'Rotbox' },
                         { value: 'cuboids', title: 'Cuboids' },
                     ],
                 },

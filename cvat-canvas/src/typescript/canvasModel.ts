@@ -60,6 +60,7 @@ export interface Configuration {
     intelligentPolygonCrop?: boolean;
     forceFrameUpdate?: boolean;
     creationOpacity?: number;
+    initialRotboxHeight?: number;
 }
 
 export interface DrawData {

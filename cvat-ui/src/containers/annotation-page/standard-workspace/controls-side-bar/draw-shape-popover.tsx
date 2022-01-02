@@ -111,6 +111,9 @@ class DrawShapePopoverContainer extends React.PureComponent<Props, State> {
         if (shapeType === ShapeType.POINTS) {
             this.minimumPoints = 1;
         }
+        if (shapeType === ShapeType.ROTBOX) {
+            this.minimumPoints = 2;
+        }
     }
 
     private onDraw(objectType: ObjectType): void {
@@ -127,7 +130,7 @@ class DrawShapePopoverContainer extends React.PureComponent<Props, State> {
             cuboidDrawingMethod,
             numberOfPoints,
             shapeType,
-            crosshair: [ShapeType.RECTANGLE, ShapeType.CUBOID].includes(shapeType),
+            crosshair: [ShapeType.RECTANGLE, ShapeType.ROTBOX, ShapeType.CUBOID].includes(shapeType),
         });
 
         onDrawStart(shapeType, selectedLabelID, objectType, numberOfPoints, rectDrawingMethod, cuboidDrawingMethod);

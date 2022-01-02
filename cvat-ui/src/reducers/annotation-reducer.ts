@@ -479,6 +479,8 @@ export default (state = defaultState, action: AnyAction): AnnotationState => {
                 activeControl = ActiveControl.DRAW_POINTS;
             } else if (payload.activeShapeType === ShapeType.CUBOID) {
                 activeControl = ActiveControl.DRAW_CUBOID;
+            } else if (payload.activeShapeType === ShapeType.ROTBOX) {
+                activeControl = ActiveControl.DRAW_ROTBOX;
             } else if (payload.activeObjectType === ObjectType.TAG) {
                 activeControl = ActiveControl.CURSOR;
             }

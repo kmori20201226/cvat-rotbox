@@ -7,7 +7,7 @@ from copy import copy, deepcopy
 import numpy as np
 from itertools import chain
 from scipy.optimize import linear_sum_assignment
-from shapely import geometry
+from shapely import geometry, affinity
 
 from cvat.apps.engine.models import ShapeType
 from cvat.apps.engine.serializers import LabeledDataSerializer
@@ -290,6 +290,11 @@ def pairwise(iterable):
     a = iter(iterable)
     return zip(a, a)
 
+def rotbox2Polygon(rbox):
+    cx, cy, ww, hh, angle = rbox
+    w, h = ww / 2, hh / 2
+    return affinity.rotate(geometry.box(cx-w, cy-h, cx+w, cy+h), angle, origin="centroid")
+
 class ShapeManager(ObjectManager):
     def to_tracks(self):
         tracks = []
@@ -340,6 +345,11 @@ class ShapeManager(ObjectManager):
 
                 return _calc_polygons_similarity(p0, p1)
             elif obj0["type"] == ShapeType.POLYGON:
+                p0 = geometry.Polygon(pairwise(obj0["points"]))
+                p1 = geometry.Polygon(pairwise(obj1["points"]))
+
+                return _calc_polygons_similarity(p0, p1)
+            elif obj0["type"] == ShapeType.ROTBOX:
                 p0 = geometry.Polygon(pairwise(obj0["points"]))
                 p1 = geometry.Polygon(pairwise(obj1["points"]))
 
@@ -685,12 +695,13 @@ class TrackManager(ObjectManager):
             is_polygon = shape0["type"] == ShapeType.POLYGON
             is_polyline = shape0["type"] == ShapeType.POLYLINE
             is_points = shape0["type"] == ShapeType.POINTS
+            is_rotbox = shape0["type"] == ShapeType.ROTBOX
 
             if not is_same_type:
                 raise NotImplementedError()
 
             shapes = []
-            if is_rectangle or is_cuboid:
+            if is_rectangle or is_cuboid or is_rotbox:
                 shapes = simple_interpolation(shape0, shape1)
             elif is_points:
                 shapes = points_interpolation(shape0, shape1)

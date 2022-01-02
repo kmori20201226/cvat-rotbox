@@ -1161,6 +1161,10 @@ def convert_cvat_anno_to_dm(cvat_frame_anno, label_attrs, map_label, format_name
                 )
             else:
                 continue
+        elif shape_obj.type == ShapeType.ROTBOX:
+            anno = datum_annotation.Polygon(anno_points,
+                label=anno_label, attributes=anno_attr, group=anno_group,
+                z_order=shape_obj.z_order)
         else:
             raise Exception("Unknown shape type '%s'" % shape_obj.type)
 
@@ -1203,6 +1207,7 @@ def find_dataset_root(dm_dataset, task_data):
     return prefix
 
 def import_dm_annotations(dm_dataset, task_data):
+    # TODO: K.Mori Implement code for ShapeType.ROTBOX
     shapes = {
         datum_annotation.AnnotationType.bbox: ShapeType.RECTANGLE,
         datum_annotation.AnnotationType.polygon: ShapeType.POLYGON,

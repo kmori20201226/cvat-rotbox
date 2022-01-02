@@ -45,6 +45,10 @@
             if (points.length / 2 < 1) {
                 throw new DataError(`Points must have at least 1 points, but got ${points.length / 2}`);
             }
+        } else if (shapeType === ObjectShape.ROTBOX) {
+            if (points.length / 2 !== 4) {
+                throw new DataError(`Points must have exact 4 points, but got ${points.length / 2}`);
+            }
         } else if (shapeType === ObjectShape.CUBOID) {
             if (points.length / 2 !== 8) {
                 throw new DataError(`Points must have exact 8 points, but got ${points.length / 2}`);
@@ -97,7 +101,7 @@
             fittedPoints.push(Math.clamp(x, 0, maxX), Math.clamp(y, 0, maxY));
         }
 
-        return shapeType === ObjectShape.CUBOID ? points : fittedPoints;
+        return shapeType === ObjectShape.CUBOID || shapeType === ObjectShape.ROTBOX ? points : fittedPoints;
     }
 
     function checkOutside(points, width, height) {
@@ -1442,6 +1446,15 @@
         }
     }
 
+    class RotboxShape extends PolygonShape {
+        constructor(data, clientID, color, injection) {
+            super(data, clientID, color, injection);
+            this.shapeType = ObjectShape.ROTBOX;
+            this.pinned = false;
+            checkNumberOfPoints(this.shapeType, this.points);
+        }
+    }
+
     class PolylineShape extends PolyShape {
         constructor(data, clientID, color, injection) {
             super(data, clientID, color, injection);
@@ -2010,6 +2023,7 @@
         PolygonShape,
         PolylineShape,
         PointsShape,
+        RotboxShape,
         CuboidShape,
         RectangleTrack,
         PolygonTrack,

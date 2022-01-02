@@ -188,3 +188,43 @@ export function translateToCanvas(offset: number, points: number[]): number[] {
 }
 
 export type PropType<T, Prop extends keyof T> = T[Prop];
+
+// Calculate the bounding box of an element with respect to its parent element
+export function transformedBoundingBox(el: any): any {
+    const bb = el.getBBox();
+    const svg = el.ownerSVGElement;
+    // m   = el.getTransformToElement(el.parentNode);
+    const m = el.getCTM();
+
+    // Create an array of all four points for the original bounding box
+    const pts = [svg.createSVGPoint(), svg.createSVGPoint(), svg.createSVGPoint(), svg.createSVGPoint()];
+    pts[0].x = bb.x;
+    pts[0].y = bb.y;
+    pts[1].x = bb.x + bb.width;
+    pts[1].y = bb.y;
+    pts[2].x = bb.x + bb.width;
+    pts[2].y = bb.y + bb.height;
+    pts[3].x = bb.x;
+    pts[3].y = bb.y + bb.height;
+
+    // Transform each into the space of the parent,
+    // and calculate the min/max points from that.
+    let xMin = Infinity;
+    let xMax = -Infinity;
+    let yMin = Infinity;
+    let yMax = -Infinity;
+    pts.forEach((pt: any): any => {
+        const pt1 = pt.matrixTransform(m);
+        xMin = Math.min(xMin, pt1.x);
+        xMax = Math.max(xMax, pt1.x);
+        yMin = Math.min(yMin, pt1.y);
+        yMax = Math.max(yMax, pt1.y);
+    });
+
+    // Update the bounding box with the new values
+    bb.x = xMin;
+    bb.width = xMax - xMin;
+    bb.y = yMin;
+    bb.height = yMax - yMin;
+    return bb;
+}

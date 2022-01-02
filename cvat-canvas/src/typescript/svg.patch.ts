@@ -8,6 +8,7 @@ import 'svg.draggable.js';
 import 'svg.resize.js';
 import 'svg.select.js';
 import 'svg.draw.js';
+import './svg.rotbox.ts';
 
 import consts from './consts';
 import { Equation, CuboidModel, Orientation, Edge } from './cuboid';
@@ -145,8 +146,84 @@ SVG.Element.prototype.draggable = function constructor(...args: any): any {
         originalDraggable.call(this, ...args);
         handler = this.remember('_draggable');
         handler.drag = function (e: any) {
+            // This body of function is transplanted from svg.draggable.js
+            // only to replace the last transform function.
             this.m = this.el.node.getScreenCTM().inverse();
-            return handler.constructor.prototype.drag.call(this, e);
+
+            var box = this.getBBox(),
+                p = this.transformPoint(e),
+                x = this.startPoints.box.x + p.x - this.startPoints.point.x,
+                y = this.startPoints.box.y + p.y - this.startPoints.point.y,
+                c = this.constraint,
+                gx = p.x - this.startPoints.point.x,
+                gy = p.y - this.startPoints.point.y;
+
+            this.el.fire('dragmove', {
+                event: e,
+                p: p,
+                m: this.m,
+                handler: this,
+            });
+
+            if (this.el.event().defaultPrevented) return p;
+
+            // move the element to its new position, if possible by constraint
+            if (typeof c == 'function') {
+                var coord = c.call(this.el, x, y, this.m);
+
+                // bool, just show us if movement is allowed or not
+                if (typeof coord == 'boolean') {
+                    coord = {
+                        x: coord,
+                        y: coord,
+                    };
+                }
+
+                // if true, we just move. If !false its a number and we move it there
+                if (coord.x === true) {
+                    this.el.x(x);
+                } else if (coord.x !== false) {
+                    this.el.x(coord.x);
+                }
+
+                if (coord.y === true) {
+                    this.el.y(y);
+                } else if (coord.y !== false) {
+                    this.el.y(coord.y);
+                }
+            } else if (typeof c == 'object') {
+                // keep element within constrained box
+                if (c.minX != null && x < c.minX) {
+                    x = c.minX;
+                    gx = x - this.startPoints.box.x;
+                } else if (c.maxX != null && x > c.maxX - box.width) {
+                    x = c.maxX - box.width;
+                    gx = x - this.startPoints.box.x;
+                }
+                if (c.minY != null && y < c.minY) {
+                    y = c.minY;
+                    gy = y - this.startPoints.box.y;
+                } else if (c.maxY != null && y > c.maxY - box.height) {
+                    y = c.maxY - box.height;
+                    gy = y - this.startPoints.box.y;
+                }
+
+                if (c.snapToGrid != null) {
+                    x = x - (x % c.snapToGrid);
+                    y = y - (y % c.snapToGrid);
+                    gx = gx - (gx % c.snapToGrid);
+                    gy = gy - (gy % c.snapToGrid);
+                }
+
+                if (this.el instanceof SVG.G) {
+                    //this.el.matrix(this.startPoints.transform).transform({x:gx, y: gy}, true)
+                    this.el.transform({ x: gx, y: gy }, true);
+                } else this.el.move(x, y);
+            }
+
+            // so we can use it in the end-method, too
+            return p;
+            //      return handler.constructor.prototype.drag.call(this, e);
         };
     } else {
         originalDraggable.call(this, ...args);

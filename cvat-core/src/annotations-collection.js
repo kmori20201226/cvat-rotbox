@@ -8,6 +8,7 @@
         PolygonShape,
         PolylineShape,
         PointsShape,
+        RotboxShape,
         CuboidShape,
         RectangleTrack,
         PolygonTrack,
@@ -48,6 +49,9 @@
             case 'points':
                 shapeModel = new PointsShape(shapeData, clientID, color, injection);
                 break;
+            case 'rotbox':
+                shapeModel = new RotboxShape(shapeData, clientID, color, injection);
+                break;
             case 'cuboid':
                 shapeModel = new CuboidShape(shapeData, clientID, color, injection);
                 break;
@@ -77,6 +81,7 @@
                 case 'points':
                     trackModel = new PointsTrack(trackData, clientID, color, injection);
                     break;
+                // TODO: K.Mori rotbox Track
                 case 'cuboid':
                     trackModel = new CuboidTrack(trackData, clientID, color, injection);
                     break;
@@ -603,6 +608,10 @@
                     track: 0,
                 },
                 points: {
+                    shape: 0,
+                    track: 0,
+                },
+                rotbox: {
                     shape: 0,
                     track: 0,
                 },

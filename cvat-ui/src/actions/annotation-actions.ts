@@ -1426,6 +1426,8 @@ export function pasteShapeAsync(): ThunkAction {
                 activeControl = ActiveControl.DRAW_POLYGON;
             } else if (initialState.shapeType === ShapeType.POLYLINE) {
                 activeControl = ActiveControl.DRAW_POLYLINE;
+            } else if (initialState.shapeType === ShapeType.ROTBOX) {
+                activeControl = ActiveControl.DRAW_ROTBOX;
             } else if (initialState.shapeType === ShapeType.CUBOID) {
                 activeControl = ActiveControl.DRAW_CUBOID;
             }

@@ -21,6 +21,7 @@ import { InteractionHandler, InteractionHandlerImpl } from './interactionHandler
 import { AutoborderHandler, AutoborderHandlerImpl } from './autoborderHandler';
 import consts from './consts';
 import {
+    Point,
     translateToSVG,
     translateFromSVG,
     translateToCanvas,
@@ -31,7 +32,9 @@ import {
     vectorLength,
     ShapeSizeElement,
     DrawnState,
+    transformedBoundingBox,
 } from './shared';
+import { distance } from './rotbox';
 import {
     CanvasModel,
     Geometry,
@@ -266,6 +269,13 @@ export class CanvasViewImpl implements CanvasView, Listener {
                     points,
                 },
             });
+
+            if (state.shapeType === 'rotbox') {
+                const p1: Point = { x: points[0], y: points[1] };
+                const p2: Point = { x: points[2], y: points[3] };
+                const height = distance(p1, p2);
+                this.configuration.initialRotboxHeight = height;
+            }
 
             this.canvas.dispatchEvent(event);
         } else {
@@ -1383,8 +1393,8 @@ export class CanvasViewImpl implements CanvasView, Listener {
             for (const state of states) {
                 if (state.hidden || state.outside) continue;
                 ctx.fillStyle = 'white';
-                if (['rectangle', 'polygon', 'cuboid'].includes(state.shapeType)) {
-                    let points = [];
+                if (['rectangle', 'polygon', 'cuboid', 'rotbox'].includes(state.shapeType)) {
+                    let points: number[] = [];
                     if (state.shapeType === 'rectangle') {
                         points = [
                             state.points[0], // xtl
@@ -1530,7 +1540,7 @@ export class CanvasViewImpl implements CanvasView, Listener {
                     });
                 } else {
                     const stringified = this.stringifyToCanvas(translatedPoints);
-                    if (state.shapeType !== 'cuboid') {
+                    if (state.shapeType !== 'cuboid' && state.shapeType !== 'rotbox') {
                         (shape as any).clear();
                     }
                     shape.attr('points', stringified);
@@ -1592,6 +1602,8 @@ export class CanvasViewImpl implements CanvasView, Listener {
                     this.svgShapes[state.clientID] = this.addPolyline(stringified, state);
                 } else if (state.shapeType === 'points') {
                     this.svgShapes[state.clientID] = this.addPoints(stringified, state);
+                } else if (state.shapeType === 'rotbox') {
+                    this.svgShapes[state.clientID] = this.addRotbox(stringified, state);
                 } else if (state.shapeType === 'cuboid') {
                     this.svgShapes[state.clientID] = this.addCuboid(stringified, state);
                 } else {
@@ -1928,7 +1940,7 @@ export class CanvasViewImpl implements CanvasView, Listener {
     // Update text position after corresponding box has been moved, resized, etc.
     private updateTextPosition(text: SVG.Text, shape: SVG.Shape): void {
         if (text.node.style.display === 'none') return; // wrong transformation matrix
-        let box = (shape.node as any).getBBox();
+        let box = transformedBoundingBox(shape.node);
 
         // Translate the whole box to the client coordinate system
         const [x1, y1, x2, y2]: number[] = translateFromSVG(this.content, [
@@ -1947,10 +1959,8 @@ export class CanvasViewImpl implements CanvasView, Listener {
 
         // Find the best place for a text
         let [clientX, clientY]: number[] = [box.x + box.width, box.y];
-        if (
-            clientX + ((text.node as any) as SVGTextElement)
-                .getBBox().width + consts.TEXT_MARGIN > this.canvas.offsetWidth
-        ) {
+        const textWidth = transformedBoundingBox(text.node).width;
+        if (clientX + textWidth + consts.TEXT_MARGIN > this.canvas.offsetWidth) {
             [clientX, clientY] = [box.x, box.y];
         }
 
@@ -2158,6 +2168,68 @@ export class CanvasViewImpl implements CanvasView, Listener {
         if (state.hidden || state.outside || this.isServiceHidden(state.clientID)) {
             group.addClass('cvat_canvas_hidden');
         }
+
+        shape.remove = (): SVG.PolyLine => {
+            this.selectize(false, shape);
+            shape.constructor.prototype.remove.call(shape);
+            return shape;
+        };
+
+        return shape;
+    }
+
+    private addRotbox(points: string, state: any): any {
+        const shape = (this.adoptedContent as any).rotbox(points).attr({
+            clientID: state.clientID,
+            'color-rendering': 'optimizeQuality',
+            id: `cvat_canvas_shape_${state.clientID}`,
+            fill: state.color,
+            'shape-rendering': 'geometricprecision',
+            stroke: state.color,
+            'stroke-width': consts.BASE_STROKE_WIDTH / this.geometry.scale,
+            'data-z-order': state.zOrder,
+            'fill-opacity': this.configuration.creationOpacity,
+        });
+
+        // eslint-disable-next-line no-underscore-dangle
+        shape._attr('points', points);
+
+        // const group = this.setupPoints(shape, state);
+
+        // if (state.hidden || state.outside || this.isServiceHidden(state.clientID)) {
+        //    group.addClass('cvat_canvas_hidden');
+        // }
+
+        shape.remove = (): SVG.PolyLine => {
+            this.selectize(false, shape);
+            shape.constructor.prototype.remove.call(shape);
+            return shape;
+        };
+
+        return shape;
+    }
+
+    private addRotbox(points: string, state: any): any {
+        const shape = (this.adoptedContent as any).rotbox(points).attr({
+            clientID: state.clientID,
+            'color-rendering': 'optimizeQuality',
+            id: `cvat_canvas_shape_${state.clientID}`,
+            fill: state.color,
+            'shape-rendering': 'geometricprecision',
+            stroke: state.color,
+            'stroke-width': consts.BASE_STROKE_WIDTH / this.geometry.scale,
+            'data-z-order': state.zOrder,
+            'fill-opacity': this.configuration.creationOpacity,
+        });
+
+        // eslint-disable-next-line no-underscore-dangle
+        shape._attr('points', points);
+
+        // const group = this.setupPoints(shape, state);
+
+        // if (state.hidden || state.outside || this.isServiceHidden(state.clientID)) {
+        //    group.addClass('cvat_canvas_hidden');
+        // }
 
         shape.remove = (): SVG.PolyLine => {
             this.selectize(false, shape);

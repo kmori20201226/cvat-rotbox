@@ -142,6 +142,7 @@
      * @property {string} POLYGON 'polygon'
      * @property {string} POLYLINE 'polyline'
      * @property {string} POINTS 'points'
+     * @property {string} ROTBOX 'rotbox'
      * @property {string} CUBOID 'cuboid'
      * @readonly
      */
@@ -150,6 +151,7 @@
         POLYGON: 'polygon',
         POLYLINE: 'polyline',
         POINTS: 'points',
+        ROTBOX: 'rotbox',
         CUBOID: 'cuboid',
     });
 

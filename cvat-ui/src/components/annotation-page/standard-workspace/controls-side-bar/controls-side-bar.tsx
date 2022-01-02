@@ -21,6 +21,7 @@ import DrawRectangleControl, { Props as DrawRectangleControlProps } from './draw
 import DrawPolygonControl, { Props as DrawPolygonControlProps } from './draw-polygon-control';
 import DrawPolylineControl, { Props as DrawPolylineControlProps } from './draw-polyline-control';
 import DrawPointsControl, { Props as DrawPointsControlProps } from './draw-points-control';
+import DrawRotboxControl, { Props as DrawRotboxControlProps } from './draw-rotbox-control';
 import DrawCuboidControl, { Props as DrawCuboidControlProps } from './draw-cuboid-control';
 import SetupTagControl, { Props as SetupTagControlProps } from './setup-tag-control';
 import MergeControl, { Props as MergeControlProps } from './merge-control';
@@ -57,6 +58,7 @@ const ObservedDrawRectangleControl = ControlVisibilityObserver<DrawRectangleCont
 const ObservedDrawPolygonControl = ControlVisibilityObserver<DrawPolygonControlProps>(DrawPolygonControl);
 const ObservedDrawPolylineControl = ControlVisibilityObserver<DrawPolylineControlProps>(DrawPolylineControl);
 const ObservedDrawPointsControl = ControlVisibilityObserver<DrawPointsControlProps>(DrawPointsControl);
+const ObservedDrawRotboxControl = ControlVisibilityObserver<DrawRotboxControlProps>(DrawRotboxControl);
 const ObservedDrawCuboidControl = ControlVisibilityObserver<DrawCuboidControlProps>(DrawCuboidControl);
 const ObservedSetupTagControl = ControlVisibilityObserver<SetupTagControlProps>(SetupTagControl);
 const ObservedMergeControl = ControlVisibilityObserver<MergeControlProps>(MergeControl);
@@ -124,6 +126,7 @@ export default function ControlsSideBarComponent(props: Props): JSX.Element {
                     ActiveControl.DRAW_POLYGON,
                     ActiveControl.DRAW_POLYLINE,
                     ActiveControl.DRAW_RECTANGLE,
+                    ActiveControl.DRAW_ROTBOX,
                     ActiveControl.DRAW_CUBOID,
                     ActiveControl.AI_TOOLS,
                     ActiveControl.OPENCV_TOOLS,
@@ -224,6 +227,11 @@ export default function ControlsSideBarComponent(props: Props): JSX.Element {
             <ObservedDrawRectangleControl
                 canvasInstance={canvasInstance}
                 isDrawing={activeControl === ActiveControl.DRAW_RECTANGLE}
+                disabled={!labels.length}
+            />
+            <ObservedDrawRotboxControl
+                canvasInstance={canvasInstance}
+                isDrawing={activeControl === ActiveControl.DRAW_ROTBOX}
                 disabled={!labels.length}
             />
             <ObservedDrawPolygonControl

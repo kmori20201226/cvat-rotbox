@@ -427,6 +427,7 @@ export enum ActiveControl {
     DRAW_POLYLINE = 'draw_polyline',
     DRAW_POINTS = 'draw_points',
     DRAW_CUBOID = 'draw_cuboid',
+    DRAW_ROTBOX = 'draw_rotbox',
     MERGE = 'merge',
     GROUP = 'group',
     SPLIT = 'split',
@@ -443,6 +444,7 @@ export enum ShapeType {
     POLYLINE = 'polyline',
     POINTS = 'points',
     CUBOID = 'cuboid',
+    ROTBOX = 'rotbox',
 }
 
 export enum ObjectType {
