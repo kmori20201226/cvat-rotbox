@@ -42,4 +42,4 @@ which has nested rotbox element inside polygon tags like the followings:
   4. Click an arrow displayed in the center to flip its direction.
   5. Shift + Click it to flip its width and height.
 
-[![Watch the video](./site/static/usage.png)](./site/static/cvat-rotbox-usage.webm)
+[![Watch the video](./site/static/usage.png)](./site/static/cvat-rotbox-usage.mp4)
