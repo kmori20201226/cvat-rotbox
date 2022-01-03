@@ -139,7 +139,7 @@ import consts from './consts';
             const self = this;
             const rb = this.rb_model;
             const w = rb.width / 2.0;
-            this.centerLine = this.g.line(w, 0, -w, 0).stroke({ width: 5, color: '#00f', dasharray: '10,10' });
+            this.centerLine = this.g.line(w, 0, -w, 0).stroke({ width: 2, color: '#00f', dasharray: '5,5' });
             this.g.put(this.centerLine);
             const path = consts.ARROW_PATH;
             this.flipSwitch = this.g
@@ -152,7 +152,7 @@ import consts from './consts';
                 .addClass('cvat_canvas_poly_direction')
                 .style({
                     'transform-origin': '0px 0px',
-                    transform: 'scale(5)',
+                    transform: 'scale(1)',
                 })
                 .move(0, 0);
             this.g.put(this.flipSwitch);

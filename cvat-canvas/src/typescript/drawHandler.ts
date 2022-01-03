@@ -908,6 +908,8 @@ export class DrawHandlerImpl implements DrawHandler {
                     this.pastePolyline(stringifiedPoints);
                 } else if (this.drawData.shapeType === 'points') {
                     this.pastePoints(stringifiedPoints);
+                } else if (this.drawData.shapeType === 'rotbox') {
+                    this.pasteRotbox(stringifiedPoints);
                 } else if (this.drawData.shapeType === 'cuboid') {
                     this.pasteCuboid(stringifiedPoints);
                 }

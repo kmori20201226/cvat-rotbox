@@ -2208,35 +2208,4 @@ export class CanvasViewImpl implements CanvasView, Listener {
 
         return shape;
     }
-
-    private addRotbox(points: string, state: any): any {
-        const shape = (this.adoptedContent as any).rotbox(points).attr({
-            clientID: state.clientID,
-            'color-rendering': 'optimizeQuality',
-            id: `cvat_canvas_shape_${state.clientID}`,
-            fill: state.color,
-            'shape-rendering': 'geometricprecision',
-            stroke: state.color,
-            'stroke-width': consts.BASE_STROKE_WIDTH / this.geometry.scale,
-            'data-z-order': state.zOrder,
-            'fill-opacity': this.configuration.creationOpacity,
-        });
-
-        // eslint-disable-next-line no-underscore-dangle
-        shape._attr('points', points);
-
-        // const group = this.setupPoints(shape, state);
-
-        // if (state.hidden || state.outside || this.isServiceHidden(state.clientID)) {
-        //    group.addClass('cvat_canvas_hidden');
-        // }
-
-        shape.remove = (): SVG.PolyLine => {
-            this.selectize(false, shape);
-            shape.constructor.prototype.remove.call(shape);
-            return shape;
-        };
-
-        return shape;
-    }
 }
