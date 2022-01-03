@@ -158,7 +158,7 @@ export class RotboxModel {
         */
         this.height = distance(points[0], points[1]);
         this.width = distance(points[1], points[2]);
-        this.angle = getYawAngle(points[1], points[2]);
+        this.angle = getYawAngle(points[2], points[1]);
         const p1 = midPoint(points[0], points[1]);
         const p2 = midPoint(points[2], points[3]);
         const pc = midPoint(p1, p2);
