@@ -133,7 +133,7 @@ context('Annotations statistics.', () => {
 
         it(`Check issue ${issueId}`, () => {
             // Issue 2663: "Cuboids are missed in annotations statistics"
-            const objectTypes = ['Rectangle', 'Polygon', 'Polyline', 'Points', 'Cuboids', 'Tags'];
+            const objectTypes = ['Rectangle', 'Polygon', 'Polyline', 'Points', 'Rotbox', 'Cuboids', 'Tags'];
             cy.get('.cvat-job-info-statistics')
                 .find('table')
                 .first()
@@ -165,9 +165,12 @@ context('Annotations statistics.', () => {
                             tableBodyFirstRowThs = Array.from(tableBodyFirstRowThs);
                             const elTextContent = tableBodyFirstRowThs.map((el) => el.textContent);
                             expect(elTextContent[0]).to.be.equal(labelName);
-                            for (let i = 1; i < 6; i++) {
-                                expect(elTextContent[i]).to.be.equal('1 / 1'); // Rectangle, Polygon, Polyline, Points, Cuboids
-                            }
+                            expect(elTextContent[i]).to.be.equal('1 / 1'); // Rectangle
+                            expect(elTextContent[i]).to.be.equal('1 / 1'); // Polygon
+                            expect(elTextContent[i]).to.be.equal('1 / 1'); // Polyline
+                            expect(elTextContent[i]).to.be.equal('1 / 1'); // Points
+                            expect(elTextContent[i]).to.be.equal('0 / 0'); // Rotbox
+                            expect(elTextContent[i]).to.be.equal('1 / 1'); // Cuboids
                             expect(elTextContent[6]).to.be.equal('1'); // Tags
                             expect(elTextContent[7]).to.be.equal('11'); // Manually
                             expect(elTextContent[8]).to.be.equal('35'); // Interpolated
