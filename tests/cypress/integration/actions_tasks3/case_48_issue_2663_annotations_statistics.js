@@ -165,16 +165,16 @@ context('Annotations statistics.', () => {
                             tableBodyFirstRowThs = Array.from(tableBodyFirstRowThs);
                             const elTextContent = tableBodyFirstRowThs.map((el) => el.textContent);
                             expect(elTextContent[0]).to.be.equal(labelName);
-                            expect(elTextContent[i]).to.be.equal('1 / 1'); // Rectangle
-                            expect(elTextContent[i]).to.be.equal('1 / 1'); // Polygon
-                            expect(elTextContent[i]).to.be.equal('1 / 1'); // Polyline
-                            expect(elTextContent[i]).to.be.equal('1 / 1'); // Points
-                            expect(elTextContent[i]).to.be.equal('0 / 0'); // Rotbox
-                            expect(elTextContent[i]).to.be.equal('1 / 1'); // Cuboids
-                            expect(elTextContent[6]).to.be.equal('1'); // Tags
-                            expect(elTextContent[7]).to.be.equal('11'); // Manually
-                            expect(elTextContent[8]).to.be.equal('35'); // Interpolated
-                            expect(elTextContent[9]).to.be.equal('46'); // Total
+                            expect(elTextContent[1]).to.be.equal('1 / 1'); // Rectangle
+                            expect(elTextContent[2]).to.be.equal('1 / 1'); // Polygon
+                            expect(elTextContent[3]).to.be.equal('1 / 1'); // Polyline
+                            expect(elTextContent[4]).to.be.equal('1 / 1'); // Points
+                            expect(elTextContent[5]).to.be.equal('0 / 0'); // Rotbox
+                            expect(elTextContent[6]).to.be.equal('1 / 1'); // Cuboids
+                            expect(elTextContent[7]).to.be.equal('1'); // Tags
+                            expect(elTextContent[8]).to.be.equal('11'); // Manually
+                            expect(elTextContent[9]).to.be.equal('35'); // Interpolated
+                            expect(elTextContent[10]).to.be.equal('46'); // Total
                         });
                 });
             cy.contains('[type="button"]', 'OK').click();
