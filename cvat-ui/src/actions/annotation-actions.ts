@@ -1542,7 +1542,7 @@ export function repeatDrawShapeAsync(): ThunkAction {
                 cuboidDrawingMethod: activeCuboidDrawingMethod,
                 numberOfPoints: activeNumOfPoints,
                 shapeType: activeShapeType,
-                crosshair: [ShapeType.RECTANGLE, ShapeType.CUBOID].includes(activeShapeType),
+                crosshair: [ShapeType.RECTANGLE, ShapeType.CUBOID, ShapeType.ROTBOX].includes(activeShapeType),
             });
         }
     };

@@ -15,6 +15,7 @@
             "sourceMapPathOverrides": {
                 "webpack://cvat/./*": "${workspaceFolder}/cvat-core/*",
                 "webpack:///./*": "${webRoot}/*",
+                "webpack:///../cvat-canvas/src/typescript/*": "${workspaceFolder}/cvat-canvas/src/typescript/*",
                 "webpack:///src/*": "${webRoot}/*",
                 "webpack:///*": "*",
                 "webpack:///./~/*": "${webRoot}/node_modules/*"
