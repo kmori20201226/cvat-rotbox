@@ -1,6 +1,10 @@
 // Copyright (C) 2021 Intel Corporation
 //
 // SPDX-License-Identifier: MIT
+
+/* eslint-disable no-underscore-dangle */
+/* eslint @typescript-eslint/no-unused-expressions: "off" */
+
 import * as SVG from 'svg.js';
 import 'svg.draggable.js';
 import 'svg.resize.js';
@@ -14,8 +18,6 @@ import {
 import { RotboxModel, rotboxPolyFrom2Points, distanceToSegment } from './rotbox';
 
 import consts from './consts';
-
-/* eslint-disable no-underscore-dangle */
 
 (SVG as any).Rotbox = SVG.invent({
     create: 'g',
@@ -71,8 +73,8 @@ import consts from './consts';
             });
             if (value === false) {
                 this.getGrabPoints().forEach((point: SVG.Element): void => {
-                    point // eslint-disable-line no-unused-expressions
-                        && point
+                    point &&
+                        point
                             .off('dragstart')
                             .off('dragmove')
                             .off('dragend')
@@ -88,34 +90,33 @@ import consts from './consts';
                     this.flipSwitch = undefined;
                 }
             } else {
-                const self = this;
                 let startRotboxPoint: Point;
                 let startClientPoint: Point;
                 this.setupCenterline();
                 this.setupGrabPoints(options);
                 this.on('dragstart', (event: CustomEvent): void => {
-                    const rb = self.rb_model;
-                    const svg = self.node.parentElement;
+                    const rb = this.rb_model;
+                    const svg = this.node.parentElement;
                     const [x, y] = translateToSVG((svg as any) as SVGSVGElement, [
                         event.detail.event.clientX,
                         event.detail.event.clientY,
                     ]);
                     startClientPoint = { x, y };
                     startRotboxPoint = { x: rb.cx, y: rb.cy };
-                    self.fire(new CustomEvent('resizestart', event));
+                    this.fire(new CustomEvent('resizestart', event));
                 });
                 this.on('dragmove', (event: CustomEvent): void => {
-                    self.fire(new CustomEvent('resizing', event));
+                    this.fire(new CustomEvent('resizing', event));
                 });
                 this.on('dragend', (event: CustomEvent): void => {
-                    const svg = self.node.parentElement;
+                    const svg = this.node.parentElement;
                     const [x, y] = translateToSVG((svg as any) as SVGSVGElement, [
                         event.detail.event.clientX,
                         event.detail.event.clientY,
                     ]);
-                    self.rb_model.cx = startRotboxPoint.x + (x - startClientPoint.x);
-                    self.rb_model.cy = startRotboxPoint.y + (y - startClientPoint.y);
-                    self.fire(new CustomEvent('resizedone', event));
+                    this.rb_model.cx = startRotboxPoint.x + (x - startClientPoint.x);
+                    this.rb_model.cy = startRotboxPoint.y + (y - startClientPoint.y);
+                    this.fire(new CustomEvent('resizedone', event));
                 });
             }
         },
@@ -136,7 +137,6 @@ import consts from './consts';
             });
         },
         setupCenterline(): void {
-            const self = this;
             const rb = this.rb_model;
             const w = rb.width / 2.0;
             this.centerLine = this.g.line(w, 0, -w, 0).stroke({ width: 2, color: '#00f', dasharray: '5,5' });
@@ -165,14 +165,13 @@ import consts from './consts';
                     } else {
                         rb.angle = rb.angle < 0 ? rb.angle + 180 : rb.angle - 180;
                     }
-                    self.updateView();
-                    self.fire(new CustomEvent('resizedone', e));
+                    this.updateView();
+                    this.fire(new CustomEvent('resizedone', e));
                 }
             });
             this.flipSwitch.dmove(-this.flipSwitch.width() / 2, -this.flipSwitch.height() / 2);
         },
         setupGrabPoints(options: any): void {
-            const self = this;
             const rb = this.rb_model;
             const h = rb.height / 2.0;
             const w = rb.width / 2.0;
@@ -184,26 +183,23 @@ import consts from './consts';
             const { pointSize } = options;
             const r = (50.0 * pointSize) / 50.0;
             const a = (40.0 * pointSize) / 50.0;
-            function F(): any {
-                const g = self.g.group();
+            const F = (): any => {
+                const g = this.g.group();
                 g.path(`M0,0 L${a},${a} 0,${a * 2}`).transform({ x: a / 2, y: 0 });
                 return g;
-                // return self.g.rect(pointSize, pointSize);
-            }
-            function B(): any {
-                return self.g.rect(pointSize / 2.0, pointSize);
-            }
-            function L(): any {
-                const g = self.g.group();
+            };
+            const B = (): any => this.g.rect(pointSize / 2.0, pointSize);
+            const L = (): any => {
+                const g = this.g.group();
                 g.path(`M${-r},0 a1,1 0 0,1 ${r},0`).transform({ x: r, y: r / 4 });
                 return g;
-            }
-            function R(): any {
-                const g = self.g.group();
+            };
+            const R = (): any => {
+                const g = this.g.group();
                 g.path(`M${-r},0 a1,1 0 1,0 ${r},0`).transform({ x: r, y: r / 4 });
                 return g;
-            }
-            function makeUp(shape: any, dx: number, dy: number, tag: string): any {
+            };
+            const makeUp = (shape: any, dx: number, dy: number, tag: string): any => {
                 const circle = shape
                     .center(dx * w, dy * h)
                     .addClass('svg_select_points')
@@ -218,7 +214,7 @@ import consts from './consts';
                         tailEnd = rb.getRealPoint({ x: -w, y: 0 });
                         headEnd = rb.getRealPoint({ x: w, y: 0 });
                         grabbed = rb.getRealPoint({ x: dx * w, y: dy * h });
-                        self.fire(new CustomEvent('resizestart', event));
+                        this.fire(new CustomEvent('resizestart', event));
                     })
                     .on('dragmove', (event: CustomEvent): void => {
                         const svg = circle.node.parentElement.parentElement.parentElement;
@@ -230,19 +226,19 @@ import consts from './consts';
                             x: x - dragStartPoint.x + grabbed.x,
                             y: y - dragStartPoint.y + grabbed.y,
                         };
-                        if (dx !== 0) {
-                            const p2 = dx < 0 ? movingEnd : tailEnd;
-                            const p1 = dx > 0 ? movingEnd : headEnd;
-                            self.reshape(p1, p2, self.rb_model.height);
+                        if (dx > 0) {
+                            this.reshape(tailEnd, movingEnd, this.rb_model.height);
+                        } else if (dx < 0) {
+                            this.reshape(movingEnd, headEnd, this.rb_model.height);
                         } else if (dy !== 0) {
                             const height = distanceToSegment(movingEnd, headEnd, tailEnd) * 2.0;
-                            self.reshape(headEnd, tailEnd, height);
+                            this.reshape(headEnd, tailEnd, height);
                         }
-                        self.updateView();
-                        self.fire(new CustomEvent('resizing', event));
+                        this.updateView();
+                        this.fire(new CustomEvent('resizing', event));
                     })
                     .on('dragend', (event: CustomEvent): void => {
-                        self.fire(new CustomEvent('resizedone', event));
+                        this.fire(new CustomEvent('resizedone', event));
                     });
                 circle.dx = dx;
                 circle.dy = dy;
@@ -258,7 +254,7 @@ import consts from './consts';
                     circle.removeClass('cvat_canvas_selected_point');
                 });
                 return circle;
-            }
+            };
             this.lGrabPoint = makeUp(L(), 0, -1, 'svg_select_points_l');
             this.rGrabPoint = makeUp(R(), 0, 1, 'svg_select_points_r');
             this.bGrabPoint = makeUp(B(), -1, 0, 'svg_select_points_b');
