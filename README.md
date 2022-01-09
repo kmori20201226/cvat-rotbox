@@ -12,24 +12,37 @@ A new datatype is introduced for rotated bounding box annotation. The
 internal format of rotbox is a polygon with 4 points which has constraint
 of making a rectangular shape.
 
-Importing rotbox annotations is still under construction. Export format
-is limited to cvat 1.1. Rotbox annotations in cvat are formed as polygons
-which has nested rotbox element inside polygon tags like the followings:
+The shape 'rotbox' is a proprietary format.
+If you want import other shape such as 'polygon's as 'rotbox'es,
+you can write your own converter into cvat annotation.xml file.
+A 'rotbox' element is just like a 'polygon' element which has
+'point' attribute to represent 4 corner points of its rectanglar
+shape. Also 'rotbox' element has a few other attributes such as
+'cx', 'cy', 'width', 'height', and 'angle'. But these attributes
+are not used at import time. These proprietary attributes can be
+ommitted.
 
+An example of annotation.xml in cvat dataset zip file is
+like this:
 ```
 <?xml version="1.0" encoding="utf-8"?>
 <annotations>
   <version>1.1</version>
   <meta> ... </meta>
-  <image id="0" name="PXL_20210129_013213855.jpg" width="2922" height="2191">
-    <polygon label="LABEL01" occluded="0" source="manual" points="386.80,780.31;449.34,702.28;922.98,1081.91;860.43,1159.94" z_order="0">
-      <rotbox cx="654.89" cy="931.11" width="607.00" height="100.00" angle="38.71">
-      </rotbox>
-    </polygon>
-    <polygon label="LABEL01" occluded="0" source="manual" points="764.47,796.46;827.02,718.43;1300.65,1098.06;1238.11,1176.09" z_order="0">
-      <rotbox cx="1032.56" cy="947.26" width="607.00" height="100.00" angle="38.71">
-      </rotbox>
-    </polygon>
+  <image id="0" name="2022-01-03083943.png" width="1254" height="828">
+    <rotbox label="Container"
+      occluded="0" source="manual"
+      points="602.10,202.77;601.43,398.47;199.73,397.10;200.39,201.41"
+      cx="400.91" cy="299.94" width="401.71" height="195.70" angle="-179.81"
+      z_order="0">
+    </rotbox>
+    <rotbox label="Container"
+      occluded="0" source="manual"
+      points="602.04,399.42;602.04,203.73;1002.36,203.71;1002.37,399.41"
+      cx="802.20" cy="301.57" width="400.32" height="195.70" angle="-0.00"
+      z_order="0">
+    </rotbox>
+  </image>
 </annotations>
 ```
 
