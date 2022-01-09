@@ -31,14 +31,11 @@ import consts from './consts';
             this.g.x(0).y(0);
             this.g.face = this.g
                 .put(this.g.rect(rb.width, rb.height, { drawCircles: false }))
-                .center(rb.width / 2.0, rb.height / 2.0)
-                .stroke({
-                    width: 2,
-                    stroke: '#000000',
-                });
+                .center(rb.width / 2.0, rb.height / 2.0);
             // this.transform({ x: rb.cx, y: rb.cy });
             this.x(rb.cx).y(rb.cy);
-            this.addClass('cvat_canvas_shape_rotbox');
+            this.addClass('cvat_canvas_shape_rotbox')
+                .addClass('cvat_canvas_shape');
             this.rb_model = rb;
             this.updateView();
             return this;
@@ -92,7 +89,7 @@ import consts from './consts';
             } else {
                 let startRotboxPoint: Point;
                 let startClientPoint: Point;
-                this.setupCenterline();
+                this.setupCenterline(options);
                 this.setupGrabPoints(options);
                 this.on('dragstart', (event: CustomEvent): void => {
                     const rb = this.rb_model;
@@ -136,12 +133,14 @@ import consts from './consts';
                 p && p.center(p.dx * w, p.dy * h); // eslint-disable-line no-unused-expressions
             });
         },
-        setupCenterline(): void {
+        setupCenterline(options: any): void {
             const rb = this.rb_model;
             const w = rb.width / 2.0;
+            const { pointSize } = options;
             this.centerLine = this.g.line(w, 0, -w, 0).stroke({ width: 2, color: '#00f', dasharray: '5,5' });
             this.g.put(this.centerLine);
             const path = consts.ARROW_PATH;
+            const f = (5.0 * pointSize) / 50.0;
             this.flipSwitch = this.g
                 .path(path)
                 .fill('white')
@@ -152,7 +151,7 @@ import consts from './consts';
                 .addClass('cvat_canvas_poly_direction')
                 .style({
                     'transform-origin': '0px 0px',
-                    transform: 'scale(1)',
+                    transform: `scale(${f})`,
                 })
                 .move(0, 0);
             this.g.put(this.flipSwitch);
@@ -232,7 +231,7 @@ import consts from './consts';
                             this.reshape(movingEnd, headEnd, this.rb_model.height);
                         } else if (dy !== 0) {
                             const height = distanceToSegment(movingEnd, headEnd, tailEnd) * 2.0;
-                            this.reshape(headEnd, tailEnd, height);
+                            this.reshape(tailEnd, headEnd, height);
                         }
                         this.updateView();
                         this.fire(new CustomEvent('resizing', event));
