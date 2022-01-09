@@ -264,6 +264,21 @@ def dump_as_cvat_annotation(dumper, annotations):
                     ("xbr2", "{:.2f}".format(shape.points[14])),
                     ("ybr2", "{:.2f}".format(shape.points[15]))
                 ]))
+            elif shape.type == "rotbox":
+                rb_model = polyRotboxElement(shape)
+                dump_data.update(OrderedDict([
+                    ("points", ';'.join((
+                        ','.join((
+                            "{:.2f}".format(x),
+                            "{:.2f}".format(y)
+                        )) for x, y in pairwise(shape.points))
+                    )),
+                    ("cx", "{:.2f}".format(rb_model[0])),
+                    ("cy", "{:.2f}".format(rb_model[1])),
+                    ("width", "{:.2f}".format(rb_model[2])),
+                    ("height", "{:.2f}".format(rb_model[3])),
+                    ("angle", "{:.2f}".format(rb_model[4])),
+                ]))
             else:
                 dump_data.update(OrderedDict([
                     ("points", ';'.join((
@@ -290,16 +305,7 @@ def dump_as_cvat_annotation(dumper, annotations):
             elif shape.type == "cuboid":
                 dumper.open_cuboid(dump_data)
             elif shape.type == "rotbox":
-                dumper.open_polygon(dump_data)
-                points = polyRotboxElement(shape)
-                dumper.open_rotbox(OrderedDict([
-                    ("cx", "{:.2f}".format(points[0])),
-                    ("cy", "{:.2f}".format(points[1])),
-                    ("width", "{:.2f}".format(points[2])),
-                    ("height", "{:.2f}".format(points[3])),
-                    ("angle", "{:.2f}".format(points[4])),
-                ]))
-                dumper.close_rotbox()
+                dumper.open_rotbox(dump_data)
             else:
                 raise NotImplementedError("unknown shape type")
 
@@ -320,7 +326,7 @@ def dump_as_cvat_annotation(dumper, annotations):
             elif shape.type == "cuboid":
                 dumper.close_cuboid()
             elif shape.type == "rotbox":
-                dumper.close_polygon()
+                dumper.close_rotbox()
             else:
                 raise NotImplementedError("unknown shape type")
 
@@ -419,7 +425,7 @@ def dump_as_cvat_interpolation(dumper, annotations):
             elif shape.type == "cuboid":
                 dumper.open_cuboid(dump_data)
             elif shape.type == "rotbox":
-                dumper.open_polygon(dump_data)
+                dumper.open_rotbox(dump_data)
             else:
                 raise NotImplementedError("unknown shape type")
 
@@ -440,7 +446,7 @@ def dump_as_cvat_interpolation(dumper, annotations):
             elif shape.type == "cuboid":
                 dumper.close_cuboid()
             elif shape.type == "rotbox":
-                dumper.close_polygon()
+                dumper.close_rotbox()
             else:
                 raise NotImplementedError("unknown shape type")
         dumper.close_track()
@@ -498,7 +504,7 @@ def load(file_object, annotations):
     context = iter(context)
     ev, _ = next(context)
 
-    supported_shapes = ('box', 'polygon', 'polyline', 'points', 'cuboid')
+    supported_shapes = ('box', 'polygon', 'polyline', 'points', 'rotbox', 'cuboid')
 
     track = None
     shape = None
