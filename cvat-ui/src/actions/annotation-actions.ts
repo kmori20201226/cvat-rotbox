@@ -1515,6 +1515,8 @@ export function repeatDrawShapeAsync(): ThunkAction {
             activeControl = ActiveControl.DRAW_POLYGON;
         } else if (activeShapeType === ShapeType.POLYLINE) {
             activeControl = ActiveControl.DRAW_POLYLINE;
+        } else if (activeShapeType === ShapeType.ROTBOX) {
+            activeControl = ActiveControl.DRAW_ROTBOX;
         } else if (activeShapeType === ShapeType.CUBOID) {
             activeControl = ActiveControl.DRAW_CUBOID;
         }
@@ -1567,6 +1569,8 @@ export function redrawShapeAsync(): ThunkAction {
                     activeControl = ActiveControl.DRAW_POLYGON;
                 } else if (state.shapeType === ShapeType.POLYLINE) {
                     activeControl = ActiveControl.DRAW_POLYLINE;
+                } else if (state.shapeType === ShapeType.ROTBOX) {
+                    activeControl = ActiveControl.DRAW_ROTBOX;
                 } else if (state.shapeType === ShapeType.CUBOID) {
                     activeControl = ActiveControl.DRAW_CUBOID;
                 }
