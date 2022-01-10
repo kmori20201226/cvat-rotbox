@@ -62,8 +62,8 @@ jobs:
       - name: Push to Docker Hub
         env:
           DOCKERHUB_WORKSPACE: 'kmori20201226'
-          SERVER_IMAGE_REPO: 'cvat_server_rotbox'
-          UI_IMAGE_REPO: 'cvat_ui_rotbox'
+          SERVER_IMAGE_REPO: 'cvat_server'
+          UI_IMAGE_REPO: 'cvat_ui'
         run: |
           docker tag "${DOCKERHUB_WORKSPACE}/${SERVER_IMAGE_REPO}:latest" "${DOCKERHUB_WORKSPACE}/${SERVER_IMAGE_REPO}:${{ github.event.release.tag_name }}"
           docker push "${DOCKERHUB_WORKSPACE}/${SERVER_IMAGE_REPO}:${{ github.event.release.tag_name }}"
