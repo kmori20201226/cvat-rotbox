@@ -1,6 +1,10 @@
 name: Publish Docker images
 
-on: workflow_dispatch
+on:
+  push:
+    # Sequence of patterns matched against refs/tags
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
 
 jobs:
   Unit_testing:
@@ -63,10 +67,10 @@ jobs:
           SERVER_IMAGE_REPO: 'cvat_server_rotbox'
           UI_IMAGE_REPO: 'cvat_ui_rotbox'
         run: |
-          docker tag "${DOCKERHUB_WORKSPACE}/${SERVER_IMAGE_REPO}:latest" "${DOCKERHUB_WORKSPACE}/${SERVER_IMAGE_REPO}:${{ github.ref }}"
-          docker push "${DOCKERHUB_WORKSPACE}/${SERVER_IMAGE_REPO}:${{ github.ref }}"
+          docker tag "${DOCKERHUB_WORKSPACE}/${SERVER_IMAGE_REPO}:latest" "${DOCKERHUB_WORKSPACE}/${SERVER_IMAGE_REPO}:${{ github.event.release.tag_name }}"
+          docker push "${DOCKERHUB_WORKSPACE}/${SERVER_IMAGE_REPO}:${{ github.event.release.tag_name }}"
           docker push "${DOCKERHUB_WORKSPACE}/${SERVER_IMAGE_REPO}:latest"
 
-          docker tag "${DOCKERHUB_WORKSPACE}/${UI_IMAGE_REPO}:latest" "${DOCKERHUB_WORKSPACE}/${UI_IMAGE_REPO}:${{ github.ref }}"
-          docker push "${DOCKERHUB_WORKSPACE}/${UI_IMAGE_REPO}:${{ github.ref }}"
+          docker tag "${DOCKERHUB_WORKSPACE}/${UI_IMAGE_REPO}:latest" "${DOCKERHUB_WORKSPACE}/${UI_IMAGE_REPO}:${{ github.event.release.tag_name }}"
+          docker push "${DOCKERHUB_WORKSPACE}/${UI_IMAGE_REPO}:${{ github.event.release.tag_name }}"
           docker push "${DOCKERHUB_WORKSPACE}/${UI_IMAGE_REPO}:latest"
