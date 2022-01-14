@@ -55,4 +55,3 @@ like this:
   4. Click an arrow displayed in the center to flip its direction.
   5. Shift + Click it to flip its width and height.
 
-[![Watch the video](./site/static/usage.png)](./site/static/cvat-rotbox-usage.mp4)
