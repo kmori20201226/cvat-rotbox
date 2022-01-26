@@ -1,9 +1,38 @@
+"""This script has following two functionarities:
+   1. Renumber frame-no according to image names supplied.
+   2. Convert polygon annotation to rotbox type.
+
+Usage:
+
+    python conv-cvat-rotbx.py [options...] source-cvat-xml [imagelist-file]
+
+    Options:
+      --output <output-cvat-xml>    Specifies output file name
+      --rotbox                      Convert polygon annotation to rotbox
+      --rotbox-exclude <ExcClass1,ExcClass2,...>
+                                    When converting from polygon to rotbox,
+                                    annotations with labels specified are leaved as is.
+    source-cvat-xml  ... Cvat xml file to convert.
+    imagelist-file   ... A file contains image-name list from working cvat server's task
+                         which is an output from get-task-imagenames.py script.
+                         The list consists image names without path and extension.
+                         The order of the list represents their frame-no.
+                         If this argument is ommitted, no frame-no renumber occurs.
+"""
 import os
 import xml.etree.ElementTree as ET
 import argparse
 import sys
 
 def read_imagelist(filename):
+    """Reads imagelist file
+
+    Args:
+       filename   (str)  : Imagelist file name
+
+    Returns:
+       Dictionary of frame-no by image name
+    """
     results = {}
     with open(filename) as f:
         for n, line in enumerate(f):
@@ -12,9 +41,18 @@ def read_imagelist(filename):
     return results
 
 def make_rotbox(polytag):
+    """Makes rotbox annotation node
+    Only a polygon with 4 points is converted.
+
+    Args:
+        polytag  (XmlElement) : Polygon tag object
+
+    Returns:
+        True if the element is converted to rotbox.
+    """
     def s(v, ix):
         return float(v.split(",")[ix])
-       
+
     points = [(s(v, 0), s(v, 1)) for v in polytag.get('points').split(';')]
     if len(points) == 4:
         polytag.tag = "rotbox"
@@ -23,9 +61,15 @@ def make_rotbox(polytag):
         return False
 
 def renumber_frames(args, imagedic):
+    """Renumber frame-no and convert polygons to rotboxes
+
+    Args:
+        args      : Program arguments
+        imagedic  : frame-no by imagename, or None
+    """
     tree = ET.parse(args.src_xmlfile)
     root = tree.getroot()
-    image_cnt = 0 
+    image_cnt = 0
     obj_cnt = 0
     rotbox_cnt = 0
     error_cnt = 0

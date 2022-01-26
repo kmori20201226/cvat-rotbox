@@ -1,9 +1,22 @@
+"""This script is to get task image list from CVAT.
+The output of this program is used by conv-cvat-rotbox.py
+
+Usage :-
+   python get-task-imagenames.py [options...] cvat-url task-name
+
+   options:
+      --output  <filename>    Specifies output file name.
+      --user  <user>          cvat login user
+      --emal  <email>         cvat login email
+      --password <password>   cvat login password
+"""
 import requests
 import argparse
 import json
 import sys
 
 class Error(Exception):
+    """Exception class for known errors"""
     pass
 
 headers = {
@@ -12,12 +25,17 @@ headers = {
 }
 
 def get_task_images(args):
+    """Get task images from cvat server
+
+    Args:
+       args :     Command line arguments
+    """
     CVAT_API = "%s/api/v1" % (args.src_url,)
 
     payload = {
         'username': args.user,
         'email': args.email,
-        'password': args.password 
+        'password': args.password
     }
     json_data = json.dumps(payload).encode("utf-8")
     response = requests.post(
@@ -27,12 +45,12 @@ def get_task_images(args):
         verify=False
     )
     if response.status_code != 200:
-        raise Error("cvat にログインできません Status=%d" % (response.status_code,))
+        raise Error("Login failed Status=%d" % (response.status_code,))
     login_response = response.json()
     try:
         key = login_response['key']
     except:
-        raise Error("cvat にログインできません (key が見つからない)")
+        raise Error("Login failed (internal: key not found in response)")
     headers.update(
         {'Authorization': 'Token ' + key}
     )
@@ -42,15 +60,15 @@ def get_task_images(args):
         verify=False
     )
     if response.status_code != 200:
-        raise Error("タスク取得に失敗")
+        raise Error("Task retrieval failed")
     contents = response.json()
     tasklist = contents['results']
     if len(tasklist) == 0:
-        raise Error("該当するタスクが見つからない")
+        raise Error("No task found")
     for t in tasklist:
         print("%3s: %s" % (t['id'], t['name']), file=sys.stderr)
     if len(tasklist) > 1:
-        raise Error("該当するタスクが複数ある")
+        raise Error("Found multiple tasks")
     task_id = tasklist[0]['id']
     response = requests.get(
         "%s/tasks/%s/data/meta" % (CVAT_API, task_id),
@@ -58,7 +76,7 @@ def get_task_images(args):
         verify=False
     )
     if response.status_code != 200:
-        raise Error("タスクメタデータ取得に失敗しました (%s)" % (response.status_code,))
+        raise Error("Task metadata retrival failed (%s)" % (response.status_code,))
     contents = response.json()
     image_names = []
     for frame in contents['frames']:
@@ -85,7 +103,7 @@ if __name__ == '__main__':
     parser.add_argument("--email", "-e", help="User email")
     parser.add_argument("--password", "-p", help="Password")
     args = parser.parse_args()
-    if args.email is None: args.email = "mori@yscc.co.jp"
+    if args.email is None: args.email = "nanashinogonbe@xxx.com"
     if args.user is None: args.user = "admin"
     if args.password is None: args.password = "admin"
     try:
@@ -93,5 +111,3 @@ if __name__ == '__main__':
     except Error as err:
         print(err)
         sys.exit(1)
-
-
