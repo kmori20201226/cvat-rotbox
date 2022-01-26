@@ -69,16 +69,7 @@ import consts from './consts';
                 rotationPoint: false,
             });
             if (value === false) {
-                this.getGrabPoints().forEach((point: SVG.Element): void => {
-                    point &&
-                        point
-                            .off('dragstart')
-                            .off('dragmove')
-                            .off('dragend')
-                            .off('mouserenter')
-                            .off('mouseleave')
-                            .remove();
-                });
+                this.removeGrabPoints();
                 this.off('dragstart').off('dragmove').off('dragend');
                 if (this.centerLine) {
                     this.centerLine.remove();
@@ -133,6 +124,18 @@ import consts from './consts';
                 p && p.center(p.dx * w, p.dy * h); // eslint-disable-line no-unused-expressions
             });
         },
+        removeGrabPoints(): void {
+            this.getGrabPoints().forEach((point: SVG.Element): void => {
+                point &&
+                    point
+                        .off('dragstart')
+                        .off('dragmove')
+                        .off('dragend')
+                        .off('mouserenter')
+                        .off('mouseleave')
+                        .remove();
+            });
+        },
         setupCenterline(options: any): void {
             const rb = this.rb_model;
             const w = rb.width / 2.0;
@@ -161,6 +164,8 @@ import consts from './consts';
                     if (e.shiftKey) {
                         rb.angle = rb.angle < 0 ? rb.angle + 90 : rb.angle - 90;
                         [rb.height, rb.width] = [rb.width, rb.height];
+                        this.removeGrabPoints();
+                        this.setupGrabPoints(options);
                     } else {
                         rb.angle = rb.angle < 0 ? rb.angle + 180 : rb.angle - 180;
                     }
